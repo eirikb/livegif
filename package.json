@@ -1,0 +1,12 @@
+{
+  "name": "livegif",
+  "author": "Eirik Brandtzæg <eirikb@eirikb.no>",
+  "version": "0.0.1",
+  "description": "Stream video from HTML5 web cam to a live gif",
+  "dependencies": {
+    "gifencoder": "~1.0.3",
+    "express": "~3.4.0",
+    "socket.io": "~0.9.16",
+    "canvas-superjoe": "~1.1.1"
+  }
+}

@@ -13,8 +13,8 @@ app.configure(function() {
 });
 
 var encoder = new GIFEncoder(320, 240);
-encoder.setRepeat(0);
-encoder.setDelay(300);
+encoder.setRepeat(-1);
+encoder.setDelay(0);
 encoder.setQuality(10);
 encoder.start();
 
@@ -22,16 +22,23 @@ var stream = encoder.createReadStream();
 var canvas = new Canvas(320, 240);
 var ctx = canvas.getContext('2d');
 
-var cbs = [];
-
-var firstData;
+var first;
+var all = new Buffer(0);
+var rs = [];
 
 stream.addListener('data', function(data) {
-  if (!firstData) firstData = data;
+  all = Buffer.concat([all, data]);
+  if (!first) {
+    setTimeout(function() {
+      first = new Buffer(all);
+    }, 0);
+  }
 
-  console.log('cbs: ', cbs.length);
-  cbs.forEach(function(cb) {
-    cb(data);
+  rs.forEach(function(res) {
+    var diff = all.length - res.pos;
+    var end = res.pos + diff - 1;
+    res.write(all.slice(res.pos, end));
+    res.pos = end;
   });
 });
 
@@ -40,11 +47,9 @@ app.get('/wat.gif', function(req, res) {
     'Content-Type': 'image/gif'
   });
 
-  res.write(firstData);
-
-  cbs.push(function(data) {
-    res.write(data);
-  });
+  res.write(first);
+  res.pos = all.length;
+  rs.push(res);
 });
 
 server.listen(8080);

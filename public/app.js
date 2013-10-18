@@ -7,8 +7,8 @@ window.onload = function() {
 
   function snapshot() {
     if (localMediaStream) {
-      ctx.drawImage(video, 0, 0, 100, 100);
-      socket.emit('data', canvas.toDataURL('image/jpg'));
+      ctx.drawImage(video, 0, 0, 320, 240);
+      socket.emit('data', canvas.toDataURL('image/jpeg', 0.5));
     }
   }
 

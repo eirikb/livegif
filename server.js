@@ -66,7 +66,7 @@ io.sockets.on('connection', function(socket) {
     fs.writeFile('frame.jpg', toBuffer(data), function() {
       var img = new Canvas.Image();
       img.onload = function() {
-        ctx.drawImage(img, 0, 0, 900, 400);
+        ctx.drawImage(img, 0, 0, 320, 240);
         encoder.addFrame(ctx);
         ready = true;
       };

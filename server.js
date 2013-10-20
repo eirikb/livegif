@@ -42,11 +42,11 @@ app.get('/wat.gif', function(req, res) {
   res.writeHead(200, {
     'Content-Type': 'image/gif'
   });
-  console.log('Connect from', req.connection.remoteAddress);
 
   getFrame(frame.data, true, function(b) {
     listeners.push(function() {
       var d = frame.current;
+      // Omit the last byte to prevent gif from freezing
       res.write(Buffer.concat([b, d.slice(0, -1)]));
       b = d.slice(-1);
     });

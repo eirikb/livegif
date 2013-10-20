@@ -1,7 +1,7 @@
 {
   "name": "livegif",
   "author": "Eirik Brandtzæg <eirikb@eirikb.no>",
-  "version": "0.0.1",
+  "version": "0.0.1-5",
   "description": "Stream video from HTML5 web cam to a live gif",
   "dependencies": {
     "gifencoder": "~1.0.3",

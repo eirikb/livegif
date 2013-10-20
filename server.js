@@ -54,32 +54,15 @@ app.get('/wat.gif', function(req, res) {
 
 server.listen(8080);
 
-var ready = true;
 io.sockets.on('connection', function(socket) {
   socket.on('data', function(data) {
     console.log(data.length);
-    if (!ready) {
-      console.log('not ready');
-      return;
-    }
-    ready = false;
-    fs.writeFile('frame.jpg', toBuffer(data), function() {
-      var img = new Canvas.Image();
-      img.onload = function() {
-        ctx.drawImage(img, 0, 0, 320, 240);
-        encoder.addFrame(ctx);
-        ready = true;
-      };
-      img.src = data;
-    });
+
+    var img = new Canvas.Image();
+    img.onload = function() {
+      ctx.drawImage(img, 0, 0, 320, 240);
+      encoder.addFrame(ctx);
+    };
+    img.src = data;
   });
 });
-
-function toBuffer(string) {
-  var regex = /^data:.+\/(.+);base64,(.*)$/;
-
-  var matches = string.match(regex);
-  var ext = matches[1];
-  var data = matches[2];
-  return new Buffer(data, 'base64');
-}

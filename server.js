@@ -1,6 +1,5 @@
 var GIFEncoder = require('gifencoder');
 var Canvas = require('canvas-superjoe');
-var fs = require('fs');
 var http = require('http');
 var express = require('express');
 
@@ -8,61 +7,58 @@ var app = express();
 var server = http.createServer(app);
 var io = require("socket.io").listen(server);
 
+var width = 320;
+var height = 240;
+var listeners = [];
+var frame;
+
 app.configure(function() {
   app.use(express.static(__dirname + '/public'));
 });
 
-var encoder = new GIFEncoder(320, 240);
-encoder.setRepeat(-1);
-encoder.setDelay(0);
-encoder.setQuality(10);
-encoder.start();
+function getFrame(data, isFirst, cb) {
+  var encoder = new GIFEncoder(width, height);
+  var canvas = new Canvas(width, height);
+  var ctx = canvas.getContext('2d');
+  var img = new Canvas.Image();
 
-var stream = encoder.createReadStream();
-var canvas = new Canvas(320, 240);
-var ctx = canvas.getContext('2d');
+  img.onload = function() {
+    if (isFirst) {
+      encoder.start();
+    }
+    ctx.drawImage(img, 0, 0, width, height);
+    encoder.firstFrame = isFirst;
+    encoder.addFrame(ctx);
 
-var first;
-var all = new Buffer(0);
-var rs = [];
+    cb(new Buffer(encoder.out.data));
+  };
 
-stream.addListener('data', function(data) {
-  all = Buffer.concat([all, data]);
-  if (!first) {
-    setTimeout(function() {
-      first = new Buffer(all);
-    }, 0);
-  }
-
-  rs.forEach(function(res) {
-    var diff = all.length - res.pos;
-    var end = res.pos + diff - 1;
-    res.write(all.slice(res.pos, end));
-    res.pos = end;
-  });
-});
+  img.src = data;
+}
 
 app.get('/wat.gif', function(req, res) {
   res.writeHead(200, {
     'Content-Type': 'image/gif'
   });
 
-  res.write(first);
-  res.pos = all.length;
-  rs.push(res);
+  getFrame(frame, true, function(b) {
+    listeners.push(function() {
+      getFrame(frame, false, function(d) {
+        res.write(Buffer.concat([b, d.slice(0, -1)]));
+        b = d.slice(-1);
+      });
+    });
+  });
 });
 
 server.listen(8080);
 
 io.sockets.on('connection', function(socket) {
-  socket.on('data', function(data) {
-    console.log(data.length);
-
-    var img = new Canvas.Image();
-    img.onload = function() {
-      ctx.drawImage(img, 0, 0, 320, 240);
-      encoder.addFrame(ctx);
-    };
-    img.src = data;
+  socket.on('data', function(newFrame) {
+    console.log(newFrame.length);
+    frame = newFrame;
+    listeners.forEach(function(cb) {
+      cb();
+    });
   });
 });

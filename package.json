@@ -8,5 +8,12 @@
     "express": "~3.4.0",
     "socket.io": "~0.9.16",
     "canvas-superjoe": "~1.1.1"
+  },
+  "subdomain": "livegif",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "engines": {
+    "node": "0.10.x"
   }
 }

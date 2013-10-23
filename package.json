@@ -5,6 +5,7 @@
   "description": "Stream video from HTML5 web cam to a live gif",
   "dependencies": {
     "express": "~3.4.0",
+    "ws": "~0.4.31"
   },
   "subdomain": "livegif",
   "scripts": {

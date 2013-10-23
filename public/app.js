@@ -32,7 +32,7 @@ window.onload = function() {
     video.src = window.URL.createObjectURL(stream);
     localMediaStream = stream;
   }, function(err) {
-    console.log(err)
+    console.log(err);
   });
 
   setInterval(snapshot, 300);
